@@ -31,12 +31,15 @@ inferExp env (EFalse) = return Type_bool
 inferExp env (EInt int) = return Type_int
 inferExp env (EDouble double) = return Type_double
 inferExp env (EString string) = return Type_string
-inferExp env (EId id) = undefined
-inferExp env (EApp id exps) = undefined
-inferExp env (EPIncr exp) = undefined
-inferExp env (EPDecr exp) = undefined 
-inferExp env (EIncr exp) = undefined
-inferExp env (EDecr exp) = undefined
+inferExp env (EId id) = lookupVar env id
+inferExp env (EApp id exps) = do
+                            (args, ret) <- lookupFun env id
+                            types <- mapM (inferExp env ) exps
+                            if(types == args) then return ret else fail ("mismatched types")
+inferExp env (EPIncr exp) = if((inferExp env exp) == return Type_int) then return Type_int else (if(inferExp env exp) == return Type_double then return Type_double else fail ("should be int or double"))
+inferExp env (EPDecr exp) = if((inferExp env exp) == return Type_int) then return Type_int else (if(inferExp env exp) == return Type_double then return Type_double else fail ("should be int or double"))
+inferExp env (EIncr exp) = if((inferExp env exp) == return Type_int) then return Type_int else (if(inferExp env exp) == return Type_double then return Type_double else fail ("should be int or double"))
+inferExp env (EDecr exp) = if((inferExp env exp) == return Type_int) then return Type_int else (if(inferExp env exp) == return Type_double then return Type_double else fail ("should be int or double"))
 inferExp env (ETimes exp1 exp2) = inferOperandTypes env exp1 exp2 [Type_double, Type_int]
 inferExp env (EDiv exp1 exp2) = inferOperandTypes env exp1 exp2 [Type_double, Type_int]
 inferExp env (EPlus exp1 exp2) = inferOperandTypes env exp1 exp2 [Type_double, Type_int, Type_string]
